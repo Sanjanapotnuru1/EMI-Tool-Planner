@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import os
+from datetime import datetime
 
 from calculator import calculate_totals
 from schedule import generate_schedule
@@ -22,6 +24,47 @@ st.set_page_config(
 )
 
 # =========================================================
+# CSV STORAGE FILES
+# =========================================================
+
+USER_DATA_FILE = "user_details.csv"
+COMPARISON_FILE = "loan_comparison.csv"
+
+# =========================================================
+# CREATE CSV FILES IF NOT EXISTS
+# =========================================================
+
+if not os.path.exists(USER_DATA_FILE):
+
+    user_df = pd.DataFrame(columns=[
+        "Timestamp",
+        "Loan Amount",
+        "Interest Rate",
+        "Tenure",
+        "Monthly Income",
+        "Existing EMI",
+        "Savings",
+        "Credit Score",
+        "Age",
+        "Dependents"
+    ])
+
+    user_df.to_csv(USER_DATA_FILE, index=False)
+
+if not os.path.exists(COMPARISON_FILE):
+
+    comparison_df = pd.DataFrame(columns=[
+        "Loan Amount",
+        "Interest Rate",
+        "Tenure",
+        "Monthly EMI",
+        "Total Payment",
+        "Total Interest"
+    ])
+
+    comparison_df.to_csv(COMPARISON_FILE, index=False)
+
+# =========================================================
 # SESSION STATES
 # =========================================================
 
@@ -38,18 +81,11 @@ if "messages" not in st.session_state:
 st.markdown("""
 <style>
 
-/* =========================================================
-GLOBAL
-========================================================= */
-
 html, body, [class*="css"] {
 
     font-family: 'Poppins', sans-serif;
-
     color: white;
 }
-
-/* ========================================================= */
 
 .stApp {
 
@@ -59,27 +95,17 @@ html, body, [class*="css"] {
     color: white;
 }
 
-/* ========================================================= */
-
 .main {
 
     background: transparent;
 }
 
-/* ========================================================= */
-
 .block-container {
 
     padding-top: 1rem;
-
     padding-left: 2rem;
-
     padding-right: 2rem;
 }
-
-/* =========================================================
-SIDEBAR
-========================================================= */
 
 section[data-testid="stSidebar"] {
 
@@ -95,30 +121,21 @@ section[data-testid="stSidebar"] {
     1px solid rgba(255,255,255,0.08);
 }
 
-/* ========================================================= */
-
 section[data-testid="stSidebar"] * {
 
     color: white !important;
 }
 
-/* =========================================================
-SIDEBAR TITLE
-========================================================= */
-
 .sidebar-title {
 
     padding-top: 10px;
-
     padding-bottom: 25px;
 }
 
 .sidebar-title h1 {
 
     color: white;
-
     font-size: 32px;
-
     line-height: 1.4;
 }
 
@@ -126,245 +143,6 @@ SIDEBAR TITLE
 
     color: #38bdf8;
 }
-
-/* =========================================================
-RADIO BUTTONS
-========================================================= */
-
-.stRadio > div {
-
-    gap: 14px;
-}
-
-.stRadio label {
-
-    background:
-    rgba(255,255,255,0.04);
-
-    border:
-    1px solid rgba(255,255,255,0.08);
-
-    padding: 14px 18px;
-
-    border-radius: 16px;
-
-    width: 100%;
-
-    transition: 0.3s ease;
-
-    font-size: 16px !important;
-
-    font-weight: 500 !important;
-}
-
-.stRadio label:hover {
-
-    background:
-    linear-gradient(
-        135deg,
-        rgba(37,99,235,0.25),
-        rgba(124,58,237,0.25)
-    );
-
-    border:
-    1px solid #38bdf8;
-
-    box-shadow:
-    0px 0px 15px rgba(56,189,248,0.2);
-}
-
-/* =========================================================
-HERO SECTION
-========================================================= */
-
-.hero {
-
-    background:
-    linear-gradient(
-        135deg,
-        rgba(37,99,235,0.15),
-        rgba(124,58,237,0.15)
-    );
-
-    border:
-    1px solid rgba(255,255,255,0.08);
-
-    backdrop-filter: blur(18px);
-
-    border-radius: 28px;
-
-    padding: 45px;
-
-    margin-bottom: 30px;
-
-    box-shadow:
-    0px 0px 30px rgba(37,99,235,0.12);
-}
-
-.hero h1 {
-
-    font-size: 62px;
-
-    color: white;
-
-    margin-bottom: 15px;
-}
-
-.hero p {
-
-    color: #cbd5e1;
-
-    font-size: 20px;
-
-    line-height: 1.8;
-}
-
-/* =========================================================
-ABOUT CARD
-========================================================= */
-
-.about-card {
-
-    background:
-    rgba(15,23,42,0.8);
-
-    border:
-    1px solid rgba(255,255,255,0.08);
-
-    border-radius: 28px;
-
-    padding: 35px;
-
-    margin-bottom: 35px;
-}
-
-.about-card h2 {
-
-    color: white;
-
-    font-size: 42px;
-
-    margin-bottom: 18px;
-}
-
-.about-card p {
-
-    color: #cbd5e1;
-
-    font-size: 18px;
-
-    line-height: 1.8;
-}
-
-/* =========================================================
-FEATURE GRID
-========================================================= */
-
-.feature-grid {
-
-    display: grid;
-
-    grid-template-columns: repeat(3, 1fr);
-
-    gap: 18px;
-
-    margin-top: 25px;
-}
-
-.feature-box {
-
-    background:
-    rgba(255,255,255,0.03);
-
-    border:
-    1px solid rgba(255,255,255,0.08);
-
-    border-radius: 18px;
-
-    padding: 22px;
-
-    transition: 0.3s ease;
-}
-
-.feature-box:hover {
-
-    transform: translateY(-5px);
-
-    border:
-    1px solid #38bdf8;
-
-    box-shadow:
-    0px 0px 18px rgba(56,189,248,0.15);
-}
-
-.feature-box h4 {
-
-    color: white;
-
-    margin-top: 12px;
-
-    font-size: 18px;
-}
-
-.feature-box p {
-
-    color: #94a3b8;
-
-    font-size: 14px;
-}
-
-/* =========================================================
-FORM CARD
-========================================================= */
-
-.form-card {
-
-    background:
-    rgba(15,23,42,0.8);
-
-    border:
-    1px solid rgba(255,255,255,0.08);
-
-    border-radius: 28px;
-
-    padding: 35px;
-
-    margin-bottom: 30px;
-}
-
-/* =========================================================
-INPUTS
-========================================================= */
-
-label {
-
-    color: #e2e8f0 !important;
-
-    font-weight: 500 !important;
-}
-
-.stNumberInput input,
-.stTextInput input,
-.stTextArea textarea {
-
-    background:
-    rgba(255,255,255,0.04) !important;
-
-    color: white !important;
-
-    border-radius: 14px !important;
-
-    border:
-    1px solid rgba(255,255,255,0.08) !important;
-
-    font-size: 17px !important;
-
-    font-weight: 600 !important;
-}
-
-/* =========================================================
-BUTTONS
-========================================================= */
 
 .stButton > button {
 
@@ -376,94 +154,22 @@ BUTTONS
     );
 
     color: white;
-
     border: none;
-
     border-radius: 14px;
-
     padding: 14px;
-
     font-weight: 600;
-
-    transition: 0.3s ease;
-
     width: 100%;
 }
-
-.stButton > button:hover {
-
-    transform: scale(1.02);
-
-    box-shadow:
-    0px 0px 18px rgba(37,99,235,0.3);
-}
-
-/* =========================================================
-SECTION TITLE
-========================================================= */
-
-.section-title {
-
-    font-size: 40px;
-
-    font-weight: 700;
-
-    margin-bottom: 25px;
-
-    color: white;
-}
-
-/* =========================================================
-METRIC CARDS
-========================================================= */
 
 .metric-card {
 
     border-radius: 24px;
-
     padding: 30px;
-
     min-height: 220px;
-
     color: white;
-
     border:
     1px solid rgba(255,255,255,0.08);
-
-    transition: 0.3s ease;
 }
-
-.metric-card:hover {
-
-    transform: translateY(-6px);
-}
-
-.metric-card h4 {
-
-    font-size: 22px;
-
-    margin-bottom: 30px;
-}
-
-.metric-card h2 {
-
-    font-size: 50px;
-
-    font-weight: 700;
-
-    margin-bottom: 15px;
-}
-
-.metric-card p {
-
-    color: rgba(255,255,255,0.75);
-
-    font-size: 16px;
-}
-
-/* =========================================================
-CARD COLORS
-========================================================= */
 
 .blue-card {
 
@@ -505,64 +211,12 @@ CARD COLORS
     );
 }
 
-/* =========================================================
-CHATBOT
-========================================================= */
+.section-title {
 
-.chat-box {
-
-    background:
-    rgba(15,23,42,0.8);
-
-    border:
-    1px solid rgba(255,255,255,0.08);
-
-    border-radius: 24px;
-
-    padding: 25px;
-}
-
-.user-msg {
-
-    background:
-    linear-gradient(
-        135deg,
-        #2563eb,
-        #7c3aed
-    );
-
-    padding: 14px;
-
-    border-radius: 14px;
-
-    margin-bottom: 12px;
-
-    width: fit-content;
-
-    margin-left: auto;
-
-    max-width: 80%;
-}
-
-.bot-msg {
-
-    background:
-    rgba(30,41,59,0.9);
-
-    padding: 14px;
-
-    border-radius: 14px;
-
-    margin-bottom: 12px;
-
-    width: fit-content;
-
-    max-width: 80%;
-}
-
-footer {
-
-    visibility: hidden;
+    font-size: 38px;
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: white;
 }
 
 </style>
@@ -587,6 +241,7 @@ page = st.sidebar.radio(
     [
         "Dashboard",
         "Analytics",
+        "Loan Comparison",
         "Repayment Schedule",
         "AI Assistant"
     ]
@@ -598,16 +253,23 @@ page = st.sidebar.radio(
 
 st.markdown("""
 
-<div class='hero'>
+<div style="
+background:linear-gradient(135deg, rgba(37,99,235,0.2), rgba(124,58,237,0.2));
+padding:40px;
+border-radius:28px;
+margin-bottom:30px;
+">
 
-<h1>💸 AI Finance Dashboard</h1>
+<h1 style="font-size:60px;">
+💸 AI Finance Dashboard
+</h1>
 
-<p>
+<p style="font-size:20px;color:#cbd5e1;">
 
-A futuristic AI-powered fintech platform for EMI planning,
-loan analytics, financial risk prediction,
-smart repayment optimization,
-and intelligent AI financial assistance.
+AI-powered fintech platform for EMI planning,
+loan analytics,
+repayment optimization,
+and intelligent financial insights.
 
 </p>
 
@@ -627,8 +289,6 @@ if not st.session_state.dashboard:
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<div class='form-card'>", unsafe_allow_html=True)
-
     col1, col2, col3 = st.columns(3)
 
     with col1:
@@ -636,15 +296,13 @@ if not st.session_state.dashboard:
         principal = st.number_input(
             "Loan Amount (₹)",
             min_value=1000.0,
-            value=700000.0,
-            step=1000.0
+            value=700000.0
         )
 
         annual_rate = st.number_input(
             "Interest Rate (%)",
             min_value=0.1,
-            value=10.0,
-            step=0.1
+            value=10.0
         )
 
         tenure_years = st.slider(
@@ -659,22 +317,19 @@ if not st.session_state.dashboard:
         monthly_income = st.number_input(
             "Monthly Income (₹)",
             min_value=1.0,
-            value=43000.0,
-            step=1000.0
+            value=43000.0
         )
 
         existing_emi = st.number_input(
             "Existing EMI (₹)",
             min_value=0.0,
-            value=0.0,
-            step=1000.0
+            value=0.0
         )
 
         savings = st.number_input(
             "Monthly Savings (₹)",
             min_value=0.0,
-            value=10000.0,
-            step=1000.0
+            value=10000.0
         )
 
     with col3:
@@ -702,6 +357,30 @@ if not st.session_state.dashboard:
 
     if st.button("🚀 Generate Dashboard"):
 
+        # =====================================================
+        # SAVE USER DETAILS TO CSV
+        # =====================================================
+
+        new_user = pd.DataFrame([{
+            "Timestamp": datetime.now(),
+            "Loan Amount": principal,
+            "Interest Rate": annual_rate,
+            "Tenure": tenure_years,
+            "Monthly Income": monthly_income,
+            "Existing EMI": existing_emi,
+            "Savings": savings,
+            "Credit Score": credit_score,
+            "Age": age,
+            "Dependents": dependents
+        }])
+
+        new_user.to_csv(
+            USER_DATA_FILE,
+            mode='a',
+            header=False,
+            index=False
+        )
+
         st.session_state.dashboard = True
 
         st.session_state.principal = principal
@@ -711,15 +390,11 @@ if not st.session_state.dashboard:
         st.session_state.credit = credit_score
         st.session_state.existing_emi = existing_emi
         st.session_state.savings = savings
-        st.session_state.age = age
-        st.session_state.dependents = dependents
 
         st.rerun()
 
-    st.markdown("</div>", unsafe_allow_html=True)
-
 # =========================================================
-# SHOW DASHBOARD AFTER BUTTON CLICK
+# DASHBOARD LOGIC
 # =========================================================
 
 else:
@@ -729,8 +404,6 @@ else:
     tenure_years = st.session_state.tenure
     monthly_income = st.session_state.income
     existing_emi = st.session_state.existing_emi
-    credit_score = st.session_state.credit
-    savings = st.session_state.savings
 
     months = int(tenure_years * 12)
 
@@ -749,33 +422,6 @@ else:
         annual_rate,
         months
     )
-
-    affordability_ratio = (
-        (emi + existing_emi)
-        / max(monthly_income, 1)
-    ) * 100
-
-    if affordability_ratio < 35:
-
-        risk = "Low Risk"
-        score = 90
-
-    elif affordability_ratio < 50:
-
-        risk = "Moderate Risk"
-        score = 65
-
-    else:
-
-        risk = "High Risk"
-        score = 40
-
-    loan_context = f"""
-    Loan Amount: ₹{principal}
-    EMI: ₹{emi}
-    Interest Rate: {annual_rate}%
-    Risk: {risk}
-    """
 
     # =====================================================
     # DASHBOARD PAGE
@@ -797,7 +443,6 @@ else:
             <div class='metric-card blue-card'>
             <h4>💳 Monthly EMI</h4>
             <h2>₹ {emi:,.0f}</h2>
-            <p>Your monthly installment</p>
             </div>
             """, unsafe_allow_html=True)
 
@@ -807,7 +452,6 @@ else:
             <div class='metric-card green-card'>
             <h4>💰 Total Payment</h4>
             <h2>₹ {total_payment:,.0f}</h2>
-            <p>Total amount to be paid</p>
             </div>
             """, unsafe_allow_html=True)
 
@@ -817,17 +461,28 @@ else:
             <div class='metric-card purple-card'>
             <h4>📈 Interest</h4>
             <h2>₹ {total_interest:,.0f}</h2>
-            <p>Total interest amount</p>
             </div>
             """, unsafe_allow_html=True)
 
         with c4:
 
+            affordability_ratio = (
+                (emi + existing_emi)
+                / max(monthly_income, 1)
+            ) * 100
+
+            risk = "Low Risk"
+
+            if affordability_ratio > 50:
+                risk = "High Risk"
+
+            elif affordability_ratio > 35:
+                risk = "Moderate Risk"
+
             st.markdown(f"""
             <div class='metric-card orange-card'>
             <h4>⚠ Risk Level</h4>
             <h2>{risk}</h2>
-            <p>Your financial risk status</p>
             </div>
             """, unsafe_allow_html=True)
 
@@ -863,6 +518,8 @@ else:
 
         with col2:
 
+            score = 85
+
             gauge = go.Figure(go.Indicator(
                 mode="gauge+number",
                 value=score,
@@ -884,7 +541,113 @@ else:
             )
 
     # =====================================================
-    # REPAYMENT SCHEDULE PAGE
+    # LOAN COMPARISON PAGE
+    # =====================================================
+
+    elif page == "Loan Comparison":
+
+        st.markdown("""
+        <div class='section-title'>
+        🔍 Loan Comparison
+        </div>
+        """, unsafe_allow_html=True)
+
+        compare_loan = st.number_input(
+            "Comparison Loan Amount",
+            min_value=1000.0,
+            value=500000.0
+        )
+
+        compare_rate = st.number_input(
+            "Comparison Interest Rate (%)",
+            min_value=0.1,
+            value=8.5
+        )
+
+        compare_tenure = st.slider(
+            "Comparison Tenure",
+            1,
+            30,
+            10
+        )
+
+        if st.button("📊 Compare Loans"):
+
+            compare_months = compare_tenure * 12
+
+            compare_totals = calculate_totals(
+                compare_loan,
+                compare_rate,
+                compare_months
+            )
+
+            comparison_df = pd.DataFrame({
+
+                "Loan Type": [
+                    "Current Loan",
+                    "Comparison Loan"
+                ],
+
+                "Loan Amount": [
+                    principal,
+                    compare_loan
+                ],
+
+                "Interest Rate": [
+                    annual_rate,
+                    compare_rate
+                ],
+
+                "EMI": [
+                    emi,
+                    compare_totals["emi"]
+                ],
+
+                "Total Payment": [
+                    total_payment,
+                    compare_totals["total_payment"]
+                ],
+
+                "Interest": [
+                    total_interest,
+                    compare_totals["total_interest"]
+                ]
+            })
+
+            st.dataframe(
+                comparison_df,
+                use_container_width=True
+            )
+
+            fig = px.bar(
+                comparison_df,
+                x="Loan Type",
+                y="EMI",
+                color="Loan Type",
+                template="plotly_dark"
+            )
+
+            st.plotly_chart(
+                fig,
+                use_container_width=True
+            )
+
+            comparison_df.to_csv(
+                COMPARISON_FILE,
+                index=False
+            )
+
+            csv = comparison_df.to_csv(index=False)
+
+            st.download_button(
+                label="⬇ Download Comparison Report",
+                data=csv,
+                file_name="loan_comparison_report.csv",
+                mime="text/csv"
+            )
+
+    # =====================================================
+    # REPAYMENT SCHEDULE
     # =====================================================
 
     elif page == "Repayment Schedule":
@@ -911,7 +674,7 @@ else:
         )
 
     # =====================================================
-    # AI ASSISTANT PAGE
+    # AI ASSISTANT
     # =====================================================
 
     elif page == "AI Assistant":
@@ -922,75 +685,45 @@ else:
         </div>
         """, unsafe_allow_html=True)
 
+        loan_context = f"""
+
+        Loan Amount: ₹{principal}
+        EMI: ₹{emi}
+        Interest Rate: {annual_rate}%
+
+        """
+
         ai_insight = get_ai_loan_insights(
             loan_context
         )
 
-        st.markdown("""
-        <div class='chat-box'>
-        """, unsafe_allow_html=True)
-
-        st.markdown("""
-        <h2 style="
-            color:white;
-            margin-bottom:20px;
-            font-size:28px;
-        ">
-        💡 AI Financial Insights
-        </h2>
-        """, unsafe_allow_html=True)
-
         st.write(ai_insight)
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        st.markdown("<br>", unsafe_allow_html=True)
 
         for msg in st.session_state.messages:
 
-            if msg["role"] == "user":
+            st.chat_message(msg["role"]).write(
+                msg["content"]
+            )
 
-                st.markdown(
-                    f"""
-                    <div class='user-msg'>
-                    {msg["content"]}
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-            else:
-
-                st.markdown(
-                    f"""
-                    <div class='bot-msg'>
-                    {msg["content"]}
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-        user_prompt = st.text_input(
-            "Ask anything about EMI, loans, savings..."
+        user_prompt = st.chat_input(
+            "Ask about loans, EMI, savings..."
         )
 
-        if st.button("🚀 Generate AI Assistant Response"):
+        if user_prompt:
 
-            if user_prompt.strip() != "":
+            st.session_state.messages.append({
+                "role": "user",
+                "content": user_prompt
+            })
 
-                st.session_state.messages.append({
-                    "role": "user",
-                    "content": user_prompt
-                })
+            reply = ask_emi_chatbot(
+                user_prompt,
+                loan_context
+            )
 
-                reply = ask_emi_chatbot(
-                    user_prompt,
-                    loan_context
-                )
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": reply
+            })
 
-                st.session_state.messages.append({
-                    "role": "assistant",
-                    "content": reply
-                })
-
-                st.rerun()
+            st.rerun()
